@@ -1,5 +1,5 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
+* Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
  * regarding copyright ownership.  The ASF licenses this file
@@ -17,26 +17,17 @@
  * under the License.
  */
 
-#ifndef _DDSKETCH_HPP_
-#define _DDSKETCH_HPP_
+#include <stdexcept>
 
+#include <catch2/catch.hpp>
+
+#include "ddsketch.hpp"
+#include "bin.hpp"
 namespace datasketches {
 
-template<typename T, typename Allocator>
-class ddsketch {
-public:
-  using value_type = T;
-  using allocator_type = Allocator;
+TEST_CASE("hll tables: interpolation exception", "[hll_tables]") {
 
-private:
+}
 
-
-
-
-};
 
 } /* namespace datasketches */
-
-#include "ddsketch_impl.hpp"
-
-#endif // _DDSKETCH_HPP_

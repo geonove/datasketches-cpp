@@ -31,7 +31,7 @@ public:
   virtual ~Store() = default;
   virtual void add(int index) = 0;
   virtual void add(int index, uint64_t count) = 0;
-  virtual void add(Bin bin) = 0;
+  virtual void add(const Bin& bin) = 0;
   virtual Store* copy() const= 0;
   virtual void clear() = 0;
   virtual bool is_empty() const = 0;
