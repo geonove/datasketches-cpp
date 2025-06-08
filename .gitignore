@@ -6,6 +6,9 @@
 # Visual Studio Code
 .vscode/
 
+# Intellij
+.idea/
+
 # OSX files
 .DS_Store
 
@@ -46,3 +49,9 @@ docs
 serialization_test_data/
 datasketches-java/
 *.sk
+
+# clang
+.clangd
+
+# CMakeFiles
+CMakeFiles/
