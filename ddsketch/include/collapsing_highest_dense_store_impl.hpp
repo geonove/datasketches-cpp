@@ -94,7 +94,7 @@ void CollapsingHighestDenseStore<Allocator>::adjust(size_type new_min_index, siz
 
     if (new_max_index <= this->min_index) {
       // There will be only one non-empty bucket.
-      const double total_count = this->get_total_count(new_min_index, new_max_index);
+      const double total_count = this->get_total_count();
       this->reset_bins();
       this->offset = new_min_index;
       this->max_index = new_max_index;
