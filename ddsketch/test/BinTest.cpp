@@ -37,6 +37,4 @@ TEST_CASE("bintest", "[bintest]") {
   TestBinInitialization(INT_MIN >> 1, 1);
   TestBinInitialization(INT_MIN, 1);
 }
-
-
 } /* namespace datasketches */
