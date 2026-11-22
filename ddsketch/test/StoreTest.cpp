@@ -565,4 +565,31 @@ TEMPLATE_TEST_CASE("test store serialize tiny counts", "[serialization]",
   REQUIRE(stream.peek() == std::istream::traits_type::eof());
   REQUIRE(store == deserialized);
 }
+
+TEMPLATE_TEST_CASE("test store shift keeps counts", "[storetest]",
+  CollapsingLowestStoreTestCase<128>,
+  CollapsingHighestStoreTestCase<128>,
+  UnboundedStoreSizeTestCase
+) {
+  auto store = *TestType::new_store();
+  for (int i = 0; i < 40; ++i) {
+    store.add(i, i + 1.0);
+  }
+  for (int i = -1; i > -30; i -= 7) {
+    store.add(i, 1000.0);
+  }
+  for (int i = 0; i < 40; ++i) {
+    store.add(100 + i, 1.0);
+  }
+  std::map<int, double> expected;
+  for (int i = 0; i < 40; ++i) { expected[i] = i + 1.0; expected[100 + i] = 1.0; }
+  for (int i = -1; i > -30; i -= 7) { expected[i] = 1000.0; }
+  double expected_total = 0;
+  for (const auto& kv : expected) { expected_total += kv.second; }
+  REQUIRE(store.get_total_count() == expected_total);
+  if (!std::is_same<TestType, UnboundedStoreSizeTestCase>::value) { return; }
+  for (const Bin& bin : store) {
+    REQUIRE(expected.at(bin.get_index()) == bin.get_count());
+  }
+}
 }

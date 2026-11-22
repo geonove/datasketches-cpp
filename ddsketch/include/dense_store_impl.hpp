@@ -216,10 +216,14 @@ void DenseStore<Derived, Allocator>::shift_bins(size_type shift) {
   const size_type min_arr_index = min_index - offset;
   const size_type max_arr_index = max_index - offset;
 
-  std::copy(bins.begin() + min_arr_index, bins.begin() + max_arr_index + 1, bins.begin() + min_arr_index + shift);
+  if (shift > 0) {
+    std::copy_backward(bins.begin() + min_arr_index, bins.begin() + max_arr_index + 1, bins.begin() + max_arr_index + 1 + shift);
+  } else {
+    std::copy(bins.begin() + min_arr_index, bins.begin() + max_arr_index + 1, bins.begin() + min_arr_index + shift);
+  }
 
   if (shift > 0) {
-    std::fill(bins.begin() + min_arr_index, bins.begin() + min_arr_index + shift, 0);
+    std::fill(bins.begin() + min_arr_index, bins.begin() + min_arr_index + shift, 0.);
   } else {
     std::fill(bins.begin() + max_arr_index + 1 + shift, bins.begin() + max_arr_index + 1, 0.);
   }
