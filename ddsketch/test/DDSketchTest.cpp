@@ -22,6 +22,7 @@
 #include <random>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <map>
 #include <cmath>
@@ -188,6 +189,12 @@ TEMPLATE_TEST_CASE("DDSketch exception test", "[ddsketch]",
 
   // Test invalid count values
   REQUIRE_THROWS_AS(sketch.update(1.0, -1.0), std::invalid_argument);
+
+  // Test non-finite values
+  REQUIRE_THROWS_AS(sketch.update(std::numeric_limits<double>::quiet_NaN()), std::invalid_argument);
+  REQUIRE_THROWS_AS(sketch.update(std::numeric_limits<double>::infinity()), std::invalid_argument);
+  REQUIRE_THROWS_AS(sketch.update(-std::numeric_limits<double>::infinity()), std::invalid_argument);
+  REQUIRE(sketch.get_count() == Approx(1.0).margin(EPSILON));
 }
 
 TEMPLATE_TEST_CASE("DDSketch clear test", "[ddsketch]",

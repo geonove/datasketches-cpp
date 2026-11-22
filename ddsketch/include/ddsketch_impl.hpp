@@ -51,7 +51,7 @@ DDSketch<Store, Mapping>::DDSketch(const Store& positive_store, const Store& neg
 
 template<class Store, class Mapping>
 void DDSketch<Store, Mapping>::check_value_trackable(const double& value) const {
-  if (value < -max_indexed_value || value > max_indexed_value) {
+  if (!(value >= -max_indexed_value && value <= max_indexed_value)) {
     throw std::invalid_argument("input value is outside the range that is tracked by the sketch.");
   }
 }
