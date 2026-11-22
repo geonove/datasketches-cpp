@@ -34,7 +34,7 @@ CollapsingDenseStore<Derived, N, Allocator>& CollapsingDenseStore<Derived, N, Al
   this->offset = other.offset;
   this->min_index = other.min_index;
   this->max_index = other.max_index;
-
+  this->is_collapsed = other.is_collapsed;
 
   return *this;
 }

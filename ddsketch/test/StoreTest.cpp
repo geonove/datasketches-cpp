@@ -592,4 +592,23 @@ TEMPLATE_TEST_CASE("test store shift keeps counts", "[storetest]",
     REQUIRE(expected.at(bin.get_index()) == bin.get_count());
   }
 }
+
+TEMPLATE_TEST_CASE("test collapsing store copy assignment", "[storetest]",
+  CollapsingLowestStoreTestCase<8>,
+  CollapsingHighestStoreTestCase<8>
+) {
+  auto source = *TestType::new_store();
+  for (int i = 0; i < 100; ++i) {
+    source.add(i);
+  }
+  auto target = *TestType::new_store();
+  target = source;
+
+  std::stringstream source_stream;
+  std::stringstream target_stream;
+  source.serialize(source_stream);
+  target.serialize(target_stream);
+  REQUIRE(source_stream.str() == target_stream.str());
+  REQUIRE(target.get_total_count() == 100.0);
+}
 }
