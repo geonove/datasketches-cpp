@@ -193,9 +193,9 @@ double SparseStore<Allocator>::get_total_count() const {
 template<typename Allocator>
 void SparseStore<Allocator>::serialize(std::ostream &os) const {
   write(os, bins.size());
-  for (const auto& [index, count] : bins) {
-    write(os, index);
-    write(os, count);
+  for (const auto& entry : bins) {
+    write(os, entry.first);
+    write(os, entry.second);
   }
 }
 
