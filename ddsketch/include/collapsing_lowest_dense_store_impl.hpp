@@ -21,7 +21,6 @@
 #define COLLAPSING_LOWEST_DENSE_STORE_IMPL_HPP
 
 #include "collapsing_lowest_dense_store.hpp"
-#include "collapsing_lowest_dense_store.hpp"
 
 namespace datasketches {
 template<int N, typename Allocator>

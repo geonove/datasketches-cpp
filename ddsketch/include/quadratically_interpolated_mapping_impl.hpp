@@ -32,15 +32,6 @@ inline QuadraticallyInterpolatedMapping::QuadraticallyInterpolatedMapping(const 
 
 
 inline double QuadraticallyInterpolatedMapping::log(const double& value) const {
-  // int64_t value_bits;
-  // std::memcpy(&value_bits, &value, sizeof(value));
-  //
-  // const int64_t mantissa_plus_one_bits = (value_bits & 0x000FFFFFFFFFFFFFL) | 0x3FF0000000000000L;
-  // double mantissa_plus_one;
-  // std::memcpy(&mantissa_plus_one, &mantissa_plus_one_bits, sizeof(mantissa_plus_one_bits));
-  //
-  // const double exponent = static_cast<double>(((value_bits & 0x7FF0000000000000L) >> 52) - 1023);
-
   int exponent = 0;
   const double mantissa = 2 * std::frexp(value, &exponent);
 
