@@ -80,6 +80,8 @@ public:
    * Defined as approximately (# of values ≤ @p item) / total_count, computed from
    * the sketch’s binned counts. Monotone in @p item and approximately the inverse
    * of @c get_quantile().
+   * @throws std::invalid_argument if @p item is NaN.
+   * @throws std::runtime_error if the sketch is empty.
    */
   double get_rank(const double& item) const;
 
@@ -173,6 +175,16 @@ protected:
   void check_mergeability(const DDSketch<OtherStore, Mapping>& other) const;
 
   double get_quantile(const double& rank, const double& count) const;
+
+  /**
+   * Sum of the counts of the bins of @p store whose representative value is at most @p magnitude.
+   */
+  double count_values_at_most(const Store& store, const double& magnitude) const;
+
+  /**
+   * Sum of the counts of the bins of @p store whose representative value is at least @p magnitude.
+   */
+  double count_values_at_least(const Store& store, const double& magnitude) const;
 
   static inline void check_split_points(const double* values, uint32_t size);
 };

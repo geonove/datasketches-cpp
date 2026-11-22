@@ -566,4 +566,51 @@ TEMPLATE_TEST_CASE("DDSketch serialize - deserialize test", "[ddsketch][random]"
 
   }
 }
+
+TEMPLATE_TEST_CASE("DDSketch rank test", "[ddsketch][random]",
+  DDSketchUnboundedStoreTestCase,
+  DDSketchCollapsingHighestStoreTestCase<4096>,
+  DDSketchCollapsingLowestStoreTestCase<4096>
+) {
+  using StoreType = decltype(*TestType::first_type::new_store());
+  using MappingType = typename TestType::second_type;
+  constexpr double relative_accuracy = 0.01;
+
+  MappingType mapping(relative_accuracy);
+  DDSketch<typename std::remove_reference<StoreType>::type, MappingType> sketch(relative_accuracy);
+  REQUIRE_THROWS_AS(sketch.get_rank(1.0), std::runtime_error);
+
+  std::mt19937_64 rng(42);
+  std::uniform_real_distribution<double> value_dist(-1000.0, 1000.0);
+  std::vector<double> representatives;
+  for (int i = 0; i < 2000; ++i) {
+    const double value = (i % 50 == 0) ? 0.0 : value_dist(rng);
+    sketch.update(value);
+    if (value == 0.0) {
+      representatives.push_back(0.0);
+    } else if (value > 0.0) {
+      representatives.push_back(mapping.value(mapping.index(value)));
+    } else {
+      representatives.push_back(-mapping.value(mapping.index(-value)));
+    }
+  }
+
+  std::vector<double> items{0.0, -0.0, 1e-300, -1e-300, 1e300, -1e300,
+    std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity()};
+  for (int i = 0; i < 200; ++i) {
+    const double rep = representatives[i * 7];
+    items.push_back(rep);
+    items.push_back(std::nextafter(rep, std::numeric_limits<double>::infinity()));
+    items.push_back(std::nextafter(rep, -std::numeric_limits<double>::infinity()));
+    items.push_back(value_dist(rng));
+  }
+
+  for (const double item : items) {
+    const double expected = static_cast<double>(std::count_if(representatives.begin(), representatives.end(),
+      [item](double rep) { return rep <= item; })) / representatives.size();
+    REQUIRE(sketch.get_rank(item) == expected);
+  }
+
+  REQUIRE_THROWS_AS(sketch.get_rank(std::numeric_limits<double>::quiet_NaN()), std::invalid_argument);
+}
 } /* namespace datasketches */

@@ -142,23 +142,65 @@ double DDSketch<Store, Mapping>::get_max() const {
 }
 
 template<class Store, class Mapping>
-double DDSketch<Store, Mapping>::get_rank(const double &item) const {
-  double rank = 0.0;
+double DDSketch<Store, Mapping>::count_values_at_most(const Store& store, const double& magnitude) const {
+  if (store.is_empty() || magnitude < index_mapping.min_indexable_value()) {
+    return 0.0;
+  }
+  if (magnitude >= max_indexed_value) {
+    return store.get_total_count();
+  }
+  // Every bin below the bin of the magnitude has a value below it, so only that bin needs value().
+  const int magnitude_index = index_mapping.index(magnitude);
+  double count = 0.0;
+  for (auto it = store.begin(); it != store.end(); ++it) {
+    const Bin bin = *it;
+    if (bin.get_index() > magnitude_index ||
+        (bin.get_index() == magnitude_index && index_mapping.value(magnitude_index) > magnitude)) {
+      break;
+    }
+    count += bin.get_count();
+  }
+  return count;
+}
 
-  if (!negative_store.is_empty()) {
-    for (auto it = negative_store.rbegin(); it != negative_store.rend() && -index_mapping.value((*it).get_index()) <= item; ++it) {
-      rank += (*it).get_count();
+template<class Store, class Mapping>
+double DDSketch<Store, Mapping>::count_values_at_least(const Store& store, const double& magnitude) const {
+  if (store.is_empty() || magnitude > max_indexed_value) {
+    return 0.0;
+  }
+  if (magnitude <= index_mapping.min_indexable_value()) {
+    return store.get_total_count();
+  }
+  const int magnitude_index = index_mapping.index(magnitude);
+  double count = 0.0;
+  for (auto it = store.rbegin(); it != store.rend(); ++it) {
+    const Bin bin = *it;
+    if (bin.get_index() < magnitude_index ||
+        (bin.get_index() == magnitude_index && index_mapping.value(magnitude_index) < magnitude)) {
+      break;
     }
+    count += bin.get_count();
   }
-  if (item >= 0) {
-    rank += zero_count;
+  return count;
+}
+
+template<class Store, class Mapping>
+double DDSketch<Store, Mapping>::get_rank(const double &item) const {
+  if (std::isnan(item)) {
+    throw std::invalid_argument("item must not be NaN");
   }
-  if (!positive_store.is_empty()) {
-    for (auto it = positive_store.begin(); it != positive_store.end() && index_mapping.value((*it).get_index()) <= item; ++it) {
-      rank += (*it).get_count();
-    }
+  const double count = get_count();
+  if (count == 0.0) {
+    throw std::runtime_error("no such element");
   }
-  return rank / get_count();
+
+  double rank = 0.0;
+  if (item >= 0.0) {
+    rank = negative_store.get_total_count() + zero_count + count_values_at_most(positive_store, item);
+  } else {
+    rank = count_values_at_least(negative_store, -item);
+  }
+  return rank / count;
 }
 
 
