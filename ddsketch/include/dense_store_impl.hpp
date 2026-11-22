@@ -360,6 +360,15 @@ Derived DenseStore<Derived, Allocator>::deserialize(std::istream& is) {
 }
 
 template<class Derived, typename Allocator>
+typename DenseStore<Derived, Allocator>::size_type DenseStore<Derived, Allocator>::count_bins() const {
+  size_type num_bins = 0;
+  for (auto it = begin(); it != end(); ++it) {
+    ++num_bins;
+  }
+  return num_bins;
+}
+
+template<class Derived, typename Allocator>
 void DenseStore<Derived, Allocator>::serialize_common(std::ostream& os) const {
   if (is_empty()) {
     return;
@@ -374,11 +383,7 @@ void DenseStore<Derived, Allocator>::serialize_common(std::ostream& os) const {
   const size_type num_bins = bins.size();
   write(os, num_bins);
 
-  size_type non_empty_bins = 0;
-  for (const double& count : bins) {
-    non_empty_bins += (count > 1e-16);
-  }
-  write(os, non_empty_bins);
+  write(os, count_bins());
 
   for (const Bin& bin : *this) {
     write(os, bin.get_index());
@@ -443,11 +448,7 @@ int DenseStore<Derived, Allocator>::get_serialized_size_bytes_common() const {
   (void)num_bins; // silence unused warning in templates
   size_bytes += sizeof(num_bins);
 
-  // Count non-empty bins exactly as in serialize_common (threshold 1e-16)
-  size_type non_empty_bins = 0;
-  for (const double& count : this->bins) {
-    non_empty_bins += (count > 1e-16);
-  }
+  const size_type non_empty_bins = count_bins();
 
   // It writes the non_empty_bins counter itself
   size_bytes += sizeof(non_empty_bins);

@@ -547,4 +547,22 @@ TEMPLATE_TEST_CASE("test store deserialize rejects corrupt stream", "[serializat
   std::stringstream bad_bin(bad_index);
   REQUIRE_THROWS_AS(StoreType::deserialize(bad_bin), std::runtime_error);
 }
+
+TEMPLATE_TEST_CASE("test store serialize tiny counts", "[serialization]",
+  CollapsingLowestStoreTestCase<128>,
+  CollapsingHighestStoreTestCase<128>,
+  UnboundedStoreSizeTestCase
+) {
+  auto store = *TestType::new_store();
+  using StoreType = decltype(store);
+  store.add(1, 1e-20);
+  store.add(5, 2.0);
+  store.add(9, 1e-18);
+  std::stringstream stream;
+  store.serialize(stream);
+  REQUIRE(static_cast<int>(stream.str().size()) == store.get_serialized_size_bytes());
+  auto deserialized = StoreType::deserialize(stream);
+  REQUIRE(stream.peek() == std::istream::traits_type::eof());
+  REQUIRE(store == deserialized);
+}
 }

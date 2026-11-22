@@ -325,6 +325,11 @@ protected:
   void reset_bins(size_type from_index, size_type to_index);
 
   /**
+   * @brief Number of bins visited by the iterator (the bins written by serialize_common).
+   */
+  size_type count_bins() const;
+
+  /**
    * @brief Serialize fields common to all dense stores.
    */
   void serialize_common(std::ostream& os) const;
