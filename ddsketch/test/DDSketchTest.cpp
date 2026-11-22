@@ -547,6 +547,9 @@ TEMPLATE_TEST_CASE("DDSketch serialize - deserialize test", "[ddsketch][random]"
     }
 
     sketch.serialize(ss);
+    std::stringstream sized_stream;
+    sketch.serialize(sized_stream);
+    REQUIRE(static_cast<int>(sized_stream.str().size()) == sketch.get_serialized_size_bytes());
     auto deserialized_sketch = DDSketch<StoreType, MappingType>::deserialize(ss);
     REQUIRE_FALSE(sketch.is_empty());
     REQUIRE_FALSE(deserialized_sketch.is_empty());

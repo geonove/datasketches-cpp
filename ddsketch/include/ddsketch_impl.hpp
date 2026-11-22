@@ -276,7 +276,7 @@ int DDSketch<Store, Mapping>::get_serialized_size_bytes() const {
     positive_store.get_serialized_size_bytes() +
       negative_store.get_serialized_size_bytes() +
         sizeof(zero_count) +
-          2 * sizeof(double);
+          2 * sizeof(int);
 }
 
 template<class Store, class Mapping>
