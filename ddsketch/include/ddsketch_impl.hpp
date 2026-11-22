@@ -229,12 +229,9 @@ void DDSketch<Store, Mapping>::serialize(std::ostream& os) const {
 
   write(os, zero_count);
 
-
-  auto val = positive_store.get_serialized_size_bytes();
   write(os, positive_store.get_serialized_size_bytes());
   positive_store.serialize(os);
 
-  val = negative_store.get_serialized_size_bytes();
   write(os, negative_store.get_serialized_size_bytes());
   negative_store.serialize(os);
 }
