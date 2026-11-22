@@ -176,6 +176,8 @@ public:
     /**
      * @brief Assign from another iterator.
      */
+    iterator(const iterator& other) = default;
+
     iterator& operator=(const iterator& other);
 
 
@@ -228,6 +230,8 @@ public:
     /**
      * @brief Assign from another reverse iterator.
      */
+    reverse_iterator(const reverse_iterator& other) = default;
+
     reverse_iterator& operator=(const reverse_iterator& other);
 
     /**
