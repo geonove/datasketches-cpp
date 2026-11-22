@@ -21,6 +21,7 @@
 #include <sstream>
 #include <catch2/catch.hpp>
 #include <climits>
+#include <cstring>
 #include <map>
 #include <algorithm>
 #include <memory>
@@ -515,5 +516,35 @@ TEMPLATE_TEST_CASE("test store serialize - deserialize", "[serialization]",
   REQUIRE(store == deserialized_store);
 
 }
-}
 
+TEMPLATE_TEST_CASE("test store deserialize rejects corrupt stream", "[serialization]",
+  CollapsingLowestStoreTestCase<128>,
+  CollapsingHighestStoreTestCase<128>,
+  UnboundedStoreSizeTestCase
+) {
+  auto store = *TestType::new_store();
+  using StoreType = decltype(store);
+  for (int i = 0; i < 50; ++i) {
+    store.add(i, 1.0);
+  }
+  std::stringstream stream;
+  store.serialize(stream);
+  const std::string bytes = stream.str();
+
+  std::stringstream truncated(bytes.substr(0, bytes.size() - 1));
+  REQUIRE_THROWS_AS(StoreType::deserialize(truncated), std::runtime_error);
+
+  std::string bad_num_bins = bytes;
+  const size_t num_bins_pos = bytes.size() - 2 * sizeof(int) - 50 * (sizeof(int) + sizeof(double)) ;
+  const int huge = INT_MAX;
+  std::memcpy(&bad_num_bins[num_bins_pos], &huge, sizeof(huge));
+  std::stringstream bad_header(bad_num_bins);
+  REQUIRE_THROWS_AS(StoreType::deserialize(bad_header), std::runtime_error);
+
+  std::string bad_index = bytes;
+  const int out_of_range = 1000000;
+  std::memcpy(&bad_index[bytes.size() - sizeof(int) - sizeof(double)], &out_of_range, sizeof(out_of_range));
+  std::stringstream bad_bin(bad_index);
+  REQUIRE_THROWS_AS(StoreType::deserialize(bad_bin), std::runtime_error);
+}
+}

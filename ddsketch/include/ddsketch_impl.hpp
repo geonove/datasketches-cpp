@@ -240,22 +240,30 @@ void DDSketch<Store, Mapping>::serialize(std::ostream& os) const {
 }
 
 template<class Store, class Mapping>
+Store DDSketch<Store, Mapping>::read_store(std::istream& is) {
+  const auto size = read<int>(is);
+  if (!is || size < 0) {
+    throw std::runtime_error("invalid store size in serialized sketch");
+  }
+  std::string buf(size, '\0');
+  is.read(&buf[0], buf.size());
+  if (!is) {
+    throw std::runtime_error("truncated serialized sketch");
+  }
+  std::stringstream stream(buf);
+  return Store::deserialize(stream);
+}
+
+template<class Store, class Mapping>
 DDSketch<Store, Mapping> DDSketch<Store, Mapping>::deserialize(std::istream &is) {
   Mapping deserialized_index_mapping = Mapping::deserialize(is);
   const auto deserialized_zero_count = read<double>(is);
+  if (!is) {
+    throw std::runtime_error("truncated serialized sketch");
+  }
 
-  const auto positive_store_serialized_size  = read<int>(is);
-
-  std::string pos_buf(positive_store_serialized_size, '\0');
-  is.read(&pos_buf[0], pos_buf.size());
-  std::stringstream pos_stream(pos_buf);
-  Store deserialized_positive_store = Store::deserialize(pos_stream);
-
-  const auto negative_store_serialized_size  = read<int>(is);
-  std::string neg_buf(negative_store_serialized_size, '\0');
-  is.read(&neg_buf[0], neg_buf.size());
-  std::stringstream neg_stream(neg_buf);
-  Store deserialized_negative_store = Store::deserialize(neg_stream);
+  Store deserialized_positive_store = read_store(is);
+  Store deserialized_negative_store = read_store(is);
 
   DDSketch<Store, Mapping> ddsketch(deserialized_positive_store, deserialized_negative_store, deserialized_index_mapping);
   ddsketch.zero_count = deserialized_zero_count;

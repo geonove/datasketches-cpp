@@ -391,21 +391,35 @@ void DenseStore<Derived, Allocator>::deserialize_common(Derived& store, std::ist
   if (is.peek() == std::istream::traits_type::eof()) {
     return;
   }
-  // Deserialize the range information
-  store.min_index = read<size_type>(is);
-  store.max_index = read<size_type>(is);
-  store.offset = read<size_type>(is);
-
-  // Deserialize the bins array
+  const auto min_index = read<size_type>(is);
+  const auto max_index = read<size_type>(is);
+  const auto offset = read<size_type>(is);
   const auto num_bins = read<size_type>(is);
-  store.bins.resize(num_bins, 0.0);
-
   const auto non_empty_bins = read<size_type>(is);
-  // Read the actual bin counts
+  if (!is) {
+    throw std::runtime_error("truncated dense store");
+  }
+
+  const int64_t width = static_cast<int64_t>(max_index) - min_index + 1;
+  const int64_t max_num_bins = width + store.array_length_overhead + store.array_length_growth_increment;
+  if (min_index > max_index || num_bins < width || num_bins > max_num_bins ||
+      offset > min_index || static_cast<int64_t>(max_index) - offset >= num_bins ||
+      non_empty_bins < 0 || non_empty_bins > width) {
+    throw std::runtime_error("invalid dense store header");
+  }
+
+  store.min_index = min_index;
+  store.max_index = max_index;
+  store.offset = offset;
+  store.bins.assign(num_bins, 0.0);
+
   for (size_type i = 0; i < non_empty_bins; ++i) {
-    const auto index =  read<int>(is);
+    const auto index = read<int>(is);
     const auto count = read<double>(is);
-    store.bins[index-store.offset] = count;
+    if (!is || index < min_index || index > max_index) {
+      throw std::runtime_error("invalid dense store bin");
+    }
+    store.bins[index - offset] = count;
   }
 }
 

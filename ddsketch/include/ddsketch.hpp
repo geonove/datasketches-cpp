@@ -165,6 +165,8 @@ protected:
   const double min_indexed_value;
   const double max_indexed_value;
 
+  static Store read_store(std::istream& is);
+
   void check_value_trackable(const double& value) const;
 
   template<class OtherStore>
