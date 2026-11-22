@@ -27,13 +27,6 @@ template<int N, typename Allocator>
 CollapsingHighestDenseStore<N, Allocator>::CollapsingHighestDenseStore(): CollapsingDenseStore<CollapsingHighestDenseStore, N, Allocator>(){}
 
 template<int N, typename Allocator>
-CollapsingHighestDenseStore<N, Allocator>* CollapsingHighestDenseStore<N, Allocator>::copy() const {
-  using StoreAlloc = typename std::allocator_traits<Allocator>::template rebind_alloc<CollapsingHighestDenseStore<N, Allocator>>;
-  StoreAlloc alloc(this->bins.get_allocator());
-  return new (alloc.allocate(1)) CollapsingHighestDenseStore<N, Allocator>(*this);
-}
-
-template<int N, typename Allocator>
 void CollapsingHighestDenseStore<N, Allocator>::merge(const CollapsingHighestDenseStore<N, Allocator>& other) {
   if (other.is_empty()) {
     return;

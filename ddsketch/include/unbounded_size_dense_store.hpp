@@ -37,12 +37,6 @@ public:
   explicit UnboundedSizeDenseStore(const int& array_length_growth_increment);
   explicit UnboundedSizeDenseStore(const int& array_length_growth_increment, const int& array_length_overhead);
 
-  /**
-   * @brief Create a heap-allocated copy of this store.
-   * @return Pointer to a new   UnboundedSizeDenseStore* copy() const;
-   */
-  UnboundedSizeDenseStore* copy() const;
-
   ~UnboundedSizeDenseStore() = default;
 
   /**

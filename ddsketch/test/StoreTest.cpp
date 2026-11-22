@@ -178,7 +178,8 @@ void assert_encode_bins(StoreType& store, const std::vector<Bin>& normalized_bin
 
 template<class StoreType>
 void test_copy(StoreType& store, const std::vector<Bin>& normalized_bins) {
-  auto store_copy(store->copy());
+  using Store = typename std::remove_reference<decltype(*store)>::type;
+  std::unique_ptr<Store> store_copy(new Store(*store));
   store->merge(*store_copy);
   assert_encode_bins(store_copy, normalized_bins);
   store->clear();
@@ -195,7 +196,6 @@ void test_copy(StoreType& store, const std::vector<Bin>& normalized_bins) {
   }
 
   assert_encode_bins(store, normalized_bins);
-  delete store_copy;
 }
 
 template<class StoreType>

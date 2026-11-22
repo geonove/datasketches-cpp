@@ -43,12 +43,6 @@ public:
   CollapsingHighestDenseStore();
 
   /**
-   * @brief Create a heap-allocated copy of this store.
-   * @return Pointer to a new CollapsingHighestDenseStore with identical contents.
-   */
-  CollapsingHighestDenseStore* copy() const;
-
-  /**
    * @brief Merge another store into this one.
    * @param other Source store; its counts are added into this store.
    * @note May trigger tail collapsing to respect the capacity @tparam N.

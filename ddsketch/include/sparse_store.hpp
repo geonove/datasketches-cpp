@@ -84,12 +84,6 @@ public:
   void add(const Bin& bin);
 
   /**
-   * @brief Create a heap-allocated copy of this store.
-   * @return Pointer to a new CollapsingHighestDenseStore with identical contents.
-   */
-  SparseStore<Allocator>* copy() const;
-
-  /**
    * @brief Clear all contents of the store.
    */
   void clear();
